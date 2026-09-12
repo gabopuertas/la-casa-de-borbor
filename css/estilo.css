@@ -1,0 +1,70 @@
+/* ============================================================
+   EL CSS ES LA ROPA DEL JUEGO
+   ============================================================
+   Aca no hay nada de "como funciona" el juego.
+   Aca solo decimos COMO SE VE la pagina: colores, tamanios, bordes.
+   Si cambias un color aca, el juego sigue funcionando igual.
+   ============================================================ */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Un fondo oscuro para que el juego resalte, como en el cine */
+  background: #12121c;
+  color: #e8e8f0;
+
+  font-family: "Trebuchet MS", "Verdana", sans-serif;
+}
+
+#marco {
+  text-align: center;
+  padding: 16px;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #ffd166;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------
+   EL CANVAS = LA TELE DEL JUEGO
+   ------------------------------------------------------------
+   width/height en el HTML  = cuantos pixeles DE VERDAD tiene (640x480)
+   width aca en el CSS      = que tan grande se ve en la pantalla
+
+   Son dos cosas distintas! Es como una foto chiquita
+   que agrandas: tiene los mismos pixeles, se ve mas grande.
+
+   image-rendering: pixelated  ->  al agrandar NO borronea los bordes.
+   Asi los dibujos quedan con onda "pixel art" en vez de borrosos.
+------------------------------------------------------------ */
+#pantalla {
+  width: min(92vw, 960px);
+  height: auto;
+  aspect-ratio: 4 / 3;
+
+  background: #000;
+  border: 4px solid #3a3a55;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+#ayuda {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #9a9ab5;
+}
+
+#ayuda b {
+  color: #ffd166;
+}

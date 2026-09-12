@@ -1,0 +1,11 @@
+# Cosas de macOS que no van al repo
+.DS_Store
+._*
+
+# Cosas de editores
+.vscode/
+.idea/
+*.swp
+
+# Nada de node por ahora: este proyecto no usa npm a proposito
+node_modules/

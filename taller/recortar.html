@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taller de Sprites</title>
+<style>
+  :root {
+    --fondo: #12121c; --panel: #1c1c2c; --borde: #3a3a55;
+    --texto: #e8e8f0; --suave: #9a9ab5; --oro: #ffd166; --verde: #7bc74d; --azul: #4ea8de;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--fondo); color: var(--texto);
+    font-family: "Trebuchet MS", Verdana, sans-serif; font-size: 14px;
+  }
+  header { padding: 16px 20px; border-bottom: 2px solid var(--borde); }
+  h1 { margin: 0; font-size: 19px; color: var(--oro); letter-spacing: 1px; }
+  header p { margin: 6px 0 0; color: var(--suave); font-size: 13px; }
+
+  #todo { display: flex; gap: 18px; padding: 18px 20px; flex-wrap: wrap; align-items: flex-start; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 10px; padding: 14px;
+  }
+  .panel h2 {
+    margin: 0 0 10px; font-size: 13px; color: var(--oro);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .paso { color: var(--azul); font-weight: bold; }
+
+  #zonaLienzo { flex: 1 1 480px; min-width: 340px; text-align: center; }
+
+  /* El cuadriculado gris es la forma clasica de mostrar "aca no hay nada".
+     Photoshop, GIMP, Figma: todos usan el mismo damero. */
+  #lienzo {
+    max-width: 100%; border-radius: 8px; cursor: crosshair;
+    background-color: #2a2a3a;
+    background-image:
+      linear-gradient(45deg, #22222e 25%, transparent 25%),
+      linear-gradient(-45deg, #22222e 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #22222e 75%),
+      linear-gradient(-45deg, transparent 75%, #22222e 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  }
+  #vacio { padding: 70px 20px; color: var(--suave); border: 2px dashed var(--borde); border-radius: 10px; }
+
+  .lateral { flex: 0 0 290px; display: flex; flex-direction: column; gap: 14px; }
+
+  button {
+    font: inherit; cursor: pointer; border-radius: 7px;
+    border: 1px solid var(--borde); background: #2a2a40; color: var(--texto);
+    padding: 8px 11px;
+  }
+  button:hover:not(:disabled) { background: #363653; }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  button.activo { background: var(--azul); border-color: var(--azul); color: #10101a; font-weight: bold; }
+  button.principal { background: var(--verde); border-color: var(--verde); color: #10101a; font-weight: bold; width: 100%; padding: 11px; }
+  .fila { display: flex; gap: 7px; flex-wrap: wrap; }
+  label { display: block; margin: 12px 0 5px; color: var(--suave); font-size: 12px; }
+  input[type=range] { width: 100%; }
+  select, input[type=text], input[type=file] { width: 100%; padding: 7px; border-radius: 7px; border: 1px solid var(--borde); background: #2a2a40; color: var(--texto); font: inherit; }
+
+  #previa { display: flex; gap: 14px; align-items: flex-end; justify-content: center; margin-top: 6px; }
+  #previa canvas { border-radius: 6px; image-rendering: pixelated; }
+  .rotulo { font-size: 11px; color: var(--suave); text-align: center; margin-top: 4px; }
+
+  .ayuda { font-size: 12px; color: var(--suave); line-height: 1.55; }
+  .ayuda b { color: var(--texto); }
+  code { background: #2a2a40; padding: 1px 5px; border-radius: 4px; color: var(--oro); font-size: 12px; }
+  #destino { color: var(--verde); font-weight: bold; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Taller de Sprites</h1>
+  <p>Convierte una foto de tu dibujo (o una imagen de la IA) en una figurita con fondo transparente, lista para el juego.</p>
+</header>
+
+<div id="todo">
+
+  <!-- ============ EL LIENZO ============ -->
+  <div id="zonaLienzo">
+    <div id="vacio">
+      Arrastra una imagen aca<br><br>
+      o pegala con <b>Ctrl+V</b><br>
+      o usa el boton de la derecha
+    </div>
+    <canvas id="lienzo" hidden></canvas>
+    <div class="rotulo" id="pista"></div>
+  </div>
+
+  <!-- ============ LOS CONTROLES ============ -->
+  <div class="lateral">
+
+    <div class="panel">
+      <h2><span class="paso">1</span> Traer el dibujo</h2>
+      <input type="file" id="archivo" accept="image/*">
+      <p class="ayuda" style="margin-top:10px">
+        <b>Foto de papel:</b> con buena luz, sin sombras encima, el papel bien blanco
+        y el dibujo con marcador grueso. Cuanto mas se despegue el dibujo del fondo,
+        mejor sale el recorte.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h2><span class="paso">2</span> Sacar el fondo</h2>
+      <div class="fila">
+        <button id="btnVarita" class="activo">Varita</button>
+        <button id="btnGoma">Goma</button>
+        <button id="btnDeshacer" disabled>Deshacer</button>
+      </div>
+      <button id="btnAuto" style="width:100%; margin-top:8px">Sacar el fondo solo</button>
+
+      <label>Tolerancia: <span id="valTol">40</span>
+        <span style="color:var(--suave)"> (cuanto parecido borra)</span></label>
+      <input type="range" id="tolerancia" min="5" max="150" value="40">
+
+      <label>Tamanio de la goma: <span id="valGoma">20</span> px</label>
+      <input type="range" id="goma" min="5" max="70" value="20">
+
+      <p class="ayuda" style="margin-top:10px">
+        La <b>varita</b> borra la mancha de color que tocas.
+        Si borra de mas, bajá la tolerancia. Si deja restos, subila.
+        La <b>goma</b> es para los pedacitos sueltos.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h2><span class="paso">3</span> Guardarlo en el juego</h2>
+
+      <label>Para que es este dibujo?</label>
+      <select id="nombre"></select>
+
+      <div id="zonaNuevo" hidden>
+        <label>Como se va a llamar? (sin espacios ni acentos)</label>
+        <input type="text" id="nuevoNombre" placeholder="garrote">
+        <label>En que carpeta va</label>
+        <select id="nuevaCarpeta">
+          <option value="imagenes/objetos/">objetos (cosas que se juntan)</option>
+          <option value="imagenes/personajes/">personajes</option>
+          <option value="imagenes/enemigos/">enemigos</option>
+          <option value="imagenes/suelo/">suelo (piso y paredes)</option>
+        </select>
+        <p class="ayuda" id="pistaNuevo"></p>
+      </div>
+
+      <label>Tamanio final</label>
+      <select id="tamanio">
+        <option value="32">32 x 32 (una casilla, lo normal)</option>
+        <option value="64" selected>64 x 64 (mas detalle, recomendado)</option>
+        <option value="96">96 x 96 (mucho detalle)</option>
+      </select>
+
+      <label style="margin-top:12px">
+        <input type="checkbox" id="pixelado"> Estilo pixel art (sin suavizar)
+      </label>
+
+      <div class="fila" style="margin-top:10px">
+        <button id="btnRecortar">Ajustar bordes</button>
+      </div>
+
+      <div id="previa"></div>
+
+      <p class="ayuda" style="margin:12px 0 8px">
+        Guardalo en la carpeta:<br><span id="destino">imagenes/personajes/</span>
+      </p>
+      <button id="btnGuardar" class="principal" disabled>Guardar el PNG</button>
+    </div>
+
+    <div class="panel">
+      <h2>Por que funciona esto?</h2>
+      <p class="ayuda">
+        Cada pixel de una imagen guarda 4 numeros: <b>R</b>ojo, <b>V</b>erde,
+        <b>A</b>zul y <b>Alfa</b>. Los tres primeros son el color.
+        El cuarto, el alfa, es cuanto se ve: 255 es opaco y 0 es invisible.
+        <br><br>
+        Sacar el fondo NO borra nada: pone el alfa en 0.
+        Los pixeles siguen ahi, pero transparentes.
+        <br><br>
+        Por eso hay que guardar en <code>.png</code> y no en <code>.jpg</code>:
+        el JPG no tiene canal alfa, y tu personaje quedaria con un cuadrado
+        blanco alrededor.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EL TALLER POR DENTRO
+   ============================================================
+   Tres lienzos (canvas) trabajando juntos:
+
+     lienzo  -> el grande donde editas
+     fuente  -> una copia sin tocar, por si queres empezar de nuevo
+     final   -> el chiquito que se guarda
+
+   Es el mismo truco que usan los programas de dibujo de verdad.
+   ============================================================ */
+
+const LIENZO_MAX = 820;   // si la foto es gigante, la achicamos para trabajar comodos
+
+const NOMBRES = [
+  ["Personajes", [
+    ["heroe",        "imagenes/personajes/", "el heroe (sirve para todas las direcciones)"],
+    ["heroe-abajo",  "imagenes/personajes/", "el heroe visto de frente"],
+    ["heroe-arriba", "imagenes/personajes/", "el heroe visto de espaldas"],
+    ["heroe-izq",    "imagenes/personajes/", "el heroe mirando a la izquierda"],
+    ["heroe-der",    "imagenes/personajes/", "el heroe mirando a la derecha"],
+  ]],
+  ["Animacion del heroe (opcional)", [
+    ["heroe-1", "imagenes/personajes/", "paso 1: un pie adelante"],
+    ["heroe-2", "imagenes/personajes/", "paso 2: el otro pie adelante"],
+    ["heroe-3", "imagenes/personajes/", "paso 3 (si queres uno mas)"],
+  ]],
+  ["Enemigos", [
+    ["baboso", "imagenes/enemigos/", "el enemigo lento"],
+    ["sombra", "imagenes/enemigos/", "el enemigo que te persigue"],
+  ]],
+  ["Objetos", [
+    ["moneda",  "imagenes/objetos/", ""],
+    ["llave",   "imagenes/objetos/", ""],
+    ["cofre",   "imagenes/objetos/", ""],
+    ["corazon", "imagenes/objetos/", ""],
+    ["garrote", "imagenes/objetos/", "el arma de BorBor"],
+  ]],
+  ["Piso y paredes", [
+    ["pasto",  "imagenes/suelo/", "se repite en todo el mapa"],
+    ["flores", "imagenes/suelo/", ""],
+    ["camino", "imagenes/suelo/", ""],
+    ["piedra", "imagenes/suelo/", "las paredes"],
+    ["arbol",  "imagenes/suelo/", ""],
+    ["agua",   "imagenes/suelo/", ""],
+    ["puerta", "imagenes/suelo/", "la que se abre con llave"],
+    ["portal", "imagenes/suelo/", "lleva al mapa siguiente"],
+    ["meta",   "imagenes/suelo/", "el final del juego"],
+  ]],
+];
+
+const $ = (id) => document.getElementById(id);
+
+const lienzo = $("lienzo");
+const ctx = lienzo.getContext("2d", { willReadFrequently: true });
+
+let fuente = null;        // la imagen original, intacta
+let historial = [];       // para deshacer
+let herramienta = "varita";
+let pintando = false;
+
+/* ---------- armar el menu de nombres ---------- */
+for (const [grupo, items] of NOMBRES) {
+  const og = document.createElement("optgroup");
+  og.label = grupo;
+  for (const [nombre, carpeta, nota] of items) {
+    const op = document.createElement("option");
+    op.value = nombre;
+    op.dataset.carpeta = carpeta;
+    op.textContent = (nombre === "__nuevo__" ? "Otro... " : nombre + ".png")
+                     + (nota ? "  -  " + nota : "");
+    og.appendChild(op);
+  }
+  $("nombre").appendChild(og);
+}
+/* Limpia un nombre para que sea un nombre de archivo valido.
+   "Garrote Mágico!" -> "garrote-magico"
+
+   Por que tanto trabajo? Porque los espacios, los acentos y los
+   simbolos raros rompen las direcciones de los archivos. Es la
+   misma razon por la que las direcciones de internet no tienen
+   espacios. Esto se llama "sanitizar" un texto. */
+function limpiarNombre(texto) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")                    // separa la letra de su acento: á -> a + ´
+    .replace(/[\u0300-\u036f]/g, "")    // y tira los acentos sueltos
+    .replace(/[^a-z0-9]+/g, "-")         // todo lo raro se vuelve un guion
+    .replace(/^-+|-+$/g, "");            // sin guiones al principio ni al final
+}
+
+const esInventado = () => $("nombre").value === "__nuevo__";
+
+function nombreElegido() {
+  return esInventado()
+    ? (limpiarNombre($("nuevoNombre").value) || "sin-nombre")
+    : $("nombre").value;
+}
+
+function carpetaElegida() {
+  return esInventado()
+    ? $("nuevaCarpeta").value
+    : $("nombre").selectedOptions[0].dataset.carpeta;
+}
+
+const actualizarDestino = () => {
+  $("zonaNuevo").hidden = !esInventado();
+  $("destino").textContent = carpetaElegida();
+
+  if (esInventado()) {
+    const n = nombreElegido();
+    // Un nombre nuevo no lo conoce nadie todavia: hay que anotarlo
+    // en la lista de js/sprites.js para que el juego lo busque.
+    $("pistaNuevo").innerHTML =
+      "Se va a guardar como <b>" + n + ".png</b>.<br><br>" +
+      "Ojo: un dibujo nuevo el juego todavia no lo conoce. " +
+      "Agregá esta línea a la lista de <code>js/sprites.js</code>:<br><br>" +
+      '<code>"' + n + '": "' + carpetaElegida() + n + '.png",</code>';
+  }
+};
+
+$("nombre").addEventListener("change", actualizarDestino);
+$("nuevoNombre").addEventListener("input", actualizarDestino);
+$("nuevaCarpeta").addEventListener("change", actualizarDestino);
+actualizarDestino();
+
+
+/* ============================================================
+   1. TRAER LA IMAGEN
+   ============================================================ */
+
+/* Usamos readAsDataURL y no una URL de archivo a proposito:
+   el navegador es muy desconfiado y no te deja LEER los pixeles
+   de una imagen que viene "de afuera" (por seguridad, se llama
+   tainted canvas). Con data URL la imagen viaja adentro de la
+   propia pagina, asi que si nos deja. */
+function abrirArchivo(file) {
+  if (!file || !file.type.startsWith("image/")) return;
+  const lector = new FileReader();
+  lector.onload = (e) => cargarImagen(e.target.result);
+  lector.readAsDataURL(file);
+}
+
+function cargarImagen(src) {
+  const img = new Image();
+  img.onload = () => {
+    // Achicamos si es una foto enorme del celular (4000 px o mas)
+    const escala = Math.min(1, LIENZO_MAX / Math.max(img.width, img.height));
+    lienzo.width  = Math.round(img.width  * escala);
+    lienzo.height = Math.round(img.height * escala);
+
+    ctx.clearRect(0, 0, lienzo.width, lienzo.height);
+    ctx.drawImage(img, 0, 0, lienzo.width, lienzo.height);
+
+    fuente = ctx.getImageData(0, 0, lienzo.width, lienzo.height);
+    historial = [];
+
+    $("vacio").hidden = true;
+    lienzo.hidden = false;
+    $("btnGuardar").disabled = false;
+    $("pista").textContent = "Toca el fondo con la varita para borrarlo";
+
+    refrescarPrevia();
+  };
+  img.src = src;
+}
+
+$("archivo").addEventListener("change", (e) => abrirArchivo(e.target.files[0]));
+
+// Arrastrar y soltar
+document.addEventListener("dragover", (e) => e.preventDefault());
+document.addEventListener("drop", (e) => {
+  e.preventDefault();
+  abrirArchivo(e.dataTransfer.files[0]);
+});
+
+// Pegar con Ctrl+V (ideal para imagenes hechas con IA)
+document.addEventListener("paste", (e) => {
+  for (const item of e.clipboardData.items) {
+    if (item.type.startsWith("image/")) abrirArchivo(item.getAsFile());
+  }
+});
+
+
+/* ============================================================
+   2. BORRAR EL FONDO
+   ============================================================ */
+
+function guardarEnHistorial() {
+  historial.push(ctx.getImageData(0, 0, lienzo.width, lienzo.height));
+  if (historial.length > 12) historial.shift();   // no guardamos infinitos
+  $("btnDeshacer").disabled = false;
+}
+
+/* ------------------------------------------------------------
+   LA VARITA MAGICA (relleno por difusion / flood fill)
+   ------------------------------------------------------------
+   Es como volcar pintura: empieza en el pixel que tocaste y se
+   va desparramando a los vecinos MIENTRAS sean de un color
+   parecido. Cuando llega al borde negro del dibujo, se frena.
+
+   Se usa una PILA de pixeles pendientes: saco uno, lo borro,
+   y meto sus 4 vecinos. Repito hasta que la pila quede vacia.
+   Este mismo algoritmo resuelve el Buscaminas y el Candy Crush.
+------------------------------------------------------------ */
+function varita(px, py, tolerancia) {
+  const W = lienzo.width, H = lienzo.height;
+  const imagen = ctx.getImageData(0, 0, W, H);
+  const d = imagen.data;
+
+  const inicio = (py * W + px) * 4;
+  if (d[inicio + 3] === 0) return;           // ya era transparente
+
+  const r0 = d[inicio], g0 = d[inicio + 1], b0 = d[inicio + 2];
+  const limite = tolerancia * 3;
+
+  const visitado = new Uint8Array(W * H);
+  const pila = [px, py];
+
+  while (pila.length) {
+    const y = pila.pop(), x = pila.pop();
+    if (x < 0 || y < 0 || x >= W || y >= H) continue;
+
+    const p = y * W + x;
+    if (visitado[p]) continue;
+    visitado[p] = 1;
+
+    const i = p * 4;
+    if (d[i + 3] === 0) continue;
+
+    // "Que tan distinto es este color del que toque?"
+    const distancia = Math.abs(d[i] - r0) + Math.abs(d[i+1] - g0) + Math.abs(d[i+2] - b0);
+    if (distancia > limite) continue;        // muy distinto: no lo borro
+
+    d[i + 3] = 0;                            // ALFA = 0 -> invisible
+
+    pila.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+  }
+
+  ctx.putImageData(imagen, 0, 0);
+}
+
+// Toca las 4 esquinas: casi siempre las esquinas son fondo
+function sacarFondoSolo() {
+  if (!fuente) return;
+  guardarEnHistorial();
+  const tol = +$("tolerancia").value;
+  const W = lienzo.width - 1, H = lienzo.height - 1;
+  for (const [x, y] of [[0,0], [W,0], [0,H], [W,H], [Math.floor(W/2),0], [Math.floor(W/2),H]]) {
+    varita(x, y, tol);
+  }
+  refrescarPrevia();
+  $("pista").textContent = "Si quedaron restos, usa la goma. Si borro de mas, Deshacer y baja la tolerancia.";
+}
+
+function goma(x, y) {
+  const radio = +$("goma").value / 2;
+  ctx.save();
+  // destination-out = "todo lo que dibuje, en vez de pintar, BORRA"
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.beginPath();
+  ctx.arc(x, y, radio, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// Traduce el click de la pantalla a pixeles reales del lienzo.
+// Hace falta porque el CSS puede estar mostrandolo mas chico.
+function posicion(e) {
+  const caja = lienzo.getBoundingClientRect();
+  const punto = e.touches ? e.touches[0] : e;
+  return {
+    x: Math.floor((punto.clientX - caja.left) * (lienzo.width  / caja.width)),
+    y: Math.floor((punto.clientY - caja.top)  * (lienzo.height / caja.height)),
+  };
+}
+
+lienzo.addEventListener("pointerdown", (e) => {
+  if (!fuente) return;
+  const { x, y } = posicion(e);
+  guardarEnHistorial();
+
+  if (herramienta === "varita") {
+    varita(x, y, +$("tolerancia").value);
+    refrescarPrevia();
+  } else {
+    pintando = true;
+    goma(x, y);
+  }
+});
+
+lienzo.addEventListener("pointermove", (e) => {
+  if (!pintando) return;
+  const { x, y } = posicion(e);
+  goma(x, y);
+});
+
+window.addEventListener("pointerup", () => {
+  if (pintando) { pintando = false; refrescarPrevia(); }
+});
+
+$("btnVarita").onclick = () => elegirHerramienta("varita");
+$("btnGoma").onclick   = () => elegirHerramienta("goma");
+
+function elegirHerramienta(cual) {
+  herramienta = cual;
+  $("btnVarita").classList.toggle("activo", cual === "varita");
+  $("btnGoma").classList.toggle("activo", cual === "goma");
+  lienzo.style.cursor = cual === "varita" ? "crosshair" : "cell";
+}
+
+$("btnDeshacer").onclick = () => {
+  const anterior = historial.pop();
+  if (!anterior) return;
+  ctx.putImageData(anterior, 0, 0);
+  $("btnDeshacer").disabled = historial.length === 0;
+  refrescarPrevia();
+};
+
+$("btnAuto").onclick = sacarFondoSolo;
+
+$("tolerancia").oninput = (e) => $("valTol").textContent = e.target.value;
+$("goma").oninput       = (e) => $("valGoma").textContent = e.target.value;
+
+
+/* ============================================================
+   3. RECORTAR Y GUARDAR
+   ============================================================ */
+
+/* Busca el rectangulo mas chico que contiene TODO lo que no es
+   transparente. Sin esto, tu dibujo quedaria chiquito y perdido
+   en el medio de un montón de aire vacio. */
+function bordesDelDibujo() {
+  const W = lienzo.width, H = lienzo.height;
+  const d = ctx.getImageData(0, 0, W, H).data;
+
+  let x1 = W, y1 = H, x2 = -1, y2 = -1;
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (d[(y * W + x) * 4 + 3] > 12) {      // 12 = ignorar restos casi invisibles
+        if (x < x1) x1 = x;
+        if (x > x2) x2 = x;
+        if (y < y1) y1 = y;
+        if (y > y2) y2 = y;
+      }
+    }
+  }
+  if (x2 < 0) return null;                    // esta todo vacio
+  return { x: x1, y: y1, w: x2 - x1 + 1, h: y2 - y1 + 1 };
+}
+
+$("btnRecortar").onclick = () => {
+  const b = bordesDelDibujo();
+  if (!b) return;
+  guardarEnHistorial();
+
+  const recorte = ctx.getImageData(b.x, b.y, b.w, b.h);
+  lienzo.width = b.w;
+  lienzo.height = b.h;
+  ctx.putImageData(recorte, 0, 0);
+
+  refrescarPrevia();
+  $("pista").textContent = "Bordes ajustados: " + b.w + " x " + b.h + " px";
+};
+
+/* Arma el PNG final: cuadrado, con el dibujo centrado y
+   sin deformarlo (respetando la proporcion). */
+function armarFinal() {
+  const lado = +$("tamanio").value;
+  const b = bordesDelDibujo() || { x: 0, y: 0, w: lienzo.width, h: lienzo.height };
+
+  const final = document.createElement("canvas");
+  final.width = final.height = lado;
+  const fctx = final.getContext("2d");
+  fctx.imageSmoothingEnabled = !$("pixelado").checked;
+
+  // La escala mas chica de las dos: asi entra entero y no se deforma
+  const escala = Math.min(lado / b.w, lado / b.h);
+  const w = Math.round(b.w * escala);
+  const h = Math.round(b.h * escala);
+
+  fctx.drawImage(lienzo, b.x, b.y, b.w, b.h,
+                 Math.round((lado - w) / 2), Math.round((lado - h) / 2), w, h);
+  return final;
+}
+
+function refrescarPrevia() {
+  if (!fuente) return;
+  const final = armarFinal();
+  const caja = $("previa");
+  caja.innerHTML = "";
+
+  // Previa grande, en damero
+  const grande = document.createElement("canvas");
+  grande.width = grande.height = 96;
+  const g = grande.getContext("2d");
+  g.imageSmoothingEnabled = false;
+  g.fillStyle = "#2a2a3a"; g.fillRect(0, 0, 96, 96);
+  g.fillStyle = "#22222e";
+  for (let y = 0; y < 96; y += 12) for (let x = 0; x < 96; x += 12)
+    if (((x + y) / 12) % 2 === 0) g.fillRect(x, y, 12, 12);
+  g.drawImage(final, 0, 0, 96, 96);
+
+  // Previa "como se ve en el juego": arriba del pasto, tamanio real
+  const enJuego = document.createElement("canvas");
+  enJuego.width = enJuego.height = 96;
+  const j = enJuego.getContext("2d");
+  j.imageSmoothingEnabled = false;
+  j.fillStyle = "#4c9a3f"; j.fillRect(0, 0, 96, 96);
+  j.drawImage(final, 16, 16, 64, 64);
+
+  for (const [cv, texto] of [[grande, "el dibujo solo"], [enJuego, "en el juego"]]) {
+    const div = document.createElement("div");
+    div.appendChild(cv);
+    const r = document.createElement("div");
+    r.className = "rotulo";
+    r.textContent = texto;
+    div.appendChild(r);
+    caja.appendChild(div);
+  }
+}
+
+["tamanio", "pixelado"].forEach(id => $(id).addEventListener("change", refrescarPrevia));
+
+$("btnGuardar").onclick = () => {
+  const final = armarFinal();
+  const nombre = nombreElegido() + ".png";
+
+  // toBlob + un link invisible = la forma estandar de bajar un archivo
+  final.toBlob((blob) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    $("pista").textContent =
+      "Guardado como " + nombre + "! Ahora movelo a la carpeta " +
+      carpetaElegida() + " y apreta F5 en el juego.";
+  }, "image/png");
+};
+</script>
+</body>
+</html>

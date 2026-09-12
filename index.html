@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La Casa de BorBor</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+
+  <!--
+    ============================================================
+    ESTA ES LA PAGINA DEL JUEGO
+    ============================================================
+    Un videojuego en el navegador tiene 3 partes:
+
+      1) El HTML  (este archivo) ..... el ESQUELETO
+      2) El CSS   (css/estilo.css) ... la ROPA (colores, tamanios)
+      3) El JS    (carpeta js/) ...... el CEREBRO (lo que piensa y se mueve)
+
+    El <canvas> de abajo es "la tele" donde se dibuja el juego.
+    Mide 640 x 480 puntitos (pixeles). Todo lo que ves pasa ahi adentro.
+  -->
+
+  <main id="marco">
+
+    <h1>La Casa de BorBor</h1>
+
+    <canvas id="pantalla" width="640" height="480"></canvas>
+
+    <p id="ayuda">
+      <b>Flechas</b> o <b>WASD</b> para caminar &nbsp;·&nbsp;
+      <b>Espacio</b> para empezar &nbsp;·&nbsp;
+      <b>E</b> para preguntarle a Chispa &nbsp;·&nbsp;
+      <b>P</b> para pausa &nbsp;·&nbsp;
+      <b>R</b> para reiniciar
+    </p>
+
+  </main>
+
+  <!--
+    ============================================================
+    EL CEREBRO DEL JUEGO
+    ============================================================
+    El ORDEN de estas lineas IMPORTA muchisimo.
+    La computadora las lee de arriba hacia abajo, como un libro.
+
+    No podes usar algo antes de explicarlo. Por eso primero van
+    las cosas basicas (config, dibujos, teclado) y al final main.js,
+    que es el que da la orden de arrancar.
+  -->
+
+  <script src="js/config.js"></script>     <!-- numeros que podes cambiar -->
+  <script src="js/sonidos.js"></script>    <!-- los ruiditos -->
+  <script src="js/teclado.js"></script>    <!-- escucha las teclas -->
+  <script src="js/sprites.js"></script>    <!-- carga TUS dibujos -->
+  <script src="js/reservas.js"></script>   <!-- dibujos de emergencia hechos con codigo -->
+  <script src="js/dibujante.js"></script>  <!-- el que pinta en el canvas -->
+  <script src="js/mapas.js"></script>      <!-- los mapas, dibujados con letras -->
+  <script src="js/mundo.js"></script>      <!-- arma el mapa y sabe donde hay paredes -->
+  <script src="js/jugador.js"></script>    <!-- vos -->
+  <script src="js/enemigos.js"></script>   <!-- los malos -->
+  <script src="js/objetos.js"></script>    <!-- monedas, llaves, cofres -->
+  <script src="js/hud.js"></script>        <!-- los corazones y los numeros de arriba -->
+
+  <!-- CHISPA, EL AMIGO CON IA.
+       Su cerebro esta partido en 4 pedazos, y cada uno hace UNA cosa.
+       Ese orden (percibir, recordar, decidir, actuar) es el ciclo
+       que usan TODAS las inteligencias artificiales de videojuegos. -->
+  <script src="js/amigo/percepcion.js"></script>  <!-- que ve -->
+  <script src="js/amigo/memoria.js"></script>     <!-- que recuerda -->
+  <script src="js/amigo/decision.js"></script>    <!-- como elige -->
+  <script src="js/amigo/cerebro.js"></script>     <!-- el enchufe -->
+  <script src="js/amigo/amigo.js"></script>       <!-- el cuerpo -->
+  <script src="js/main.js"></script>       <!-- ARRANCA TODO -->
+
+</body>
+</html>
