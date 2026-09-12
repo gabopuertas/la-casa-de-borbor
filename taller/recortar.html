@@ -189,6 +189,10 @@
   </div>
 </div>
 
+<!-- El taller lee la MISMA lista que usa el juego.
+     Asi es imposible que se desincronicen. -->
+<script src="../js/sprites.js"></script>
+
 <script>
 /* ============================================================
    EL TALLER POR DENTRO
@@ -204,42 +208,94 @@
 
 const LIENZO_MAX = 820;   // si la foto es gigante, la achicamos para trabajar comodos
 
-const NOMBRES = [
-  ["Personajes", [
-    ["heroe",        "imagenes/personajes/", "el heroe (sirve para todas las direcciones)"],
-    ["heroe-abajo",  "imagenes/personajes/", "el heroe visto de frente"],
-    ["heroe-arriba", "imagenes/personajes/", "el heroe visto de espaldas"],
-    ["heroe-izq",    "imagenes/personajes/", "el heroe mirando a la izquierda"],
-    ["heroe-der",    "imagenes/personajes/", "el heroe mirando a la derecha"],
-  ]],
-  ["Animacion del heroe (opcional)", [
-    ["heroe-1", "imagenes/personajes/", "paso 1: un pie adelante"],
-    ["heroe-2", "imagenes/personajes/", "paso 2: el otro pie adelante"],
-    ["heroe-3", "imagenes/personajes/", "paso 3 (si queres uno mas)"],
-  ]],
-  ["Enemigos", [
-    ["baboso", "imagenes/enemigos/", "el enemigo lento"],
-    ["sombra", "imagenes/enemigos/", "el enemigo que te persigue"],
-  ]],
-  ["Objetos", [
-    ["moneda",  "imagenes/objetos/", ""],
-    ["llave",   "imagenes/objetos/", ""],
-    ["cofre",   "imagenes/objetos/", ""],
-    ["corazon", "imagenes/objetos/", ""],
-    ["garrote", "imagenes/objetos/", "el arma de BorBor"],
-  ]],
-  ["Piso y paredes", [
-    ["pasto",  "imagenes/suelo/", "se repite en todo el mapa"],
-    ["flores", "imagenes/suelo/", ""],
-    ["camino", "imagenes/suelo/", ""],
-    ["piedra", "imagenes/suelo/", "las paredes"],
-    ["arbol",  "imagenes/suelo/", ""],
-    ["agua",   "imagenes/suelo/", ""],
-    ["puerta", "imagenes/suelo/", "la que se abre con llave"],
-    ["portal", "imagenes/suelo/", "lleva al mapa siguiente"],
-    ["meta",   "imagenes/suelo/", "el final del juego"],
-  ]],
+/* ------------------------------------------------------------
+   UNA SOLA FUENTE DE VERDAD
+   ------------------------------------------------------------
+   Antes esta lista estaba escrita DOS VECES: una en js/sprites.js
+   (la que usa el juego) y otra aca (la que ves en el menu).
+
+   Y paso lo que siempre pasa: agregamos a Chispa al juego,
+   nos olvidamos de agregarla aca, y el taller no la ofrecia.
+
+   Eso tiene nombre: se llama DUPLICAR INFORMACION, y es una de
+   las formas mas comunes de meter bugs. Dos copias de lo mismo
+   SIEMPRE terminan diciendo cosas distintas. Es cuestion de tiempo.
+
+   La solucion no es "acordarse de actualizar las dos". La solucion
+   es que haya UNA SOLA. Ahora el taller lee js/sprites.js y arma
+   el menu solo. Si maniana agregas un dibujo nuevo al juego,
+   aparece aca sin que toques este archivo.
+------------------------------------------------------------ */
+
+// Solo los textos de ayuda. Los NOMBRES salen del juego.
+const DESCRIPCIONES = {
+  "heroe":        "EMPEZA POR ESTE: sirve para todas las direcciones",
+  "heroe-abajo":  "el heroe visto de frente",
+  "heroe-arriba": "el heroe visto de espaldas",
+  "heroe-izq":    "el heroe mirando a la izquierda",
+  "heroe-der":    "el heroe mirando a la derecha",
+  "amigo":        "Chispa, el robot que te acompania",
+  "baboso":       "el enemigo lento",
+  "sombra":       "el enemigo que te persigue",
+  "garrote":      "el arma de BorBor",
+  "pasto":        "se repite en todo el mapa: que sea tileable!",
+  "piedra":       "las paredes",
+  "puerta":       "la que se abre con llave",
+  "portal":       "lleva al mapa siguiente",
+  "meta":         "el final del juego",
+};
+
+const CARPETAS = [
+  ["imagenes/personajes/", "Personajes"],
+  ["imagenes/enemigos/",   "Enemigos"],
+  ["imagenes/objetos/",    "Objetos"],
+  ["imagenes/suelo/",      "Piso y paredes"],
 ];
+
+const CUADROS_DE_ANIMACION = ["Animacion del heroe (opcional)", [
+  ["heroe-1", "imagenes/personajes/", "paso 1: un pie adelante"],
+  ["heroe-2", "imagenes/personajes/", "paso 2: el otro pie adelante"],
+  ["heroe-3", "imagenes/personajes/", "paso 3 (si queres uno mas)"],
+]];
+
+function armarNombres() {
+  // Si por algun motivo no se pudo leer js/sprites.js, avisamos
+  // en vez de mostrar un menu vacio sin explicacion.
+  if (typeof Sprites === "undefined") {
+    alert("No pude leer js/sprites.js.\n\n" +
+          "El taller tiene que estar adentro de la carpeta taller/ del juego.");
+    return [CUADROS_DE_ANIMACION];
+  }
+
+  const grupos = [];
+
+  for (const [carpeta, titulo] of CARPETAS) {
+    const items = [];
+
+    for (const nombre in Sprites.lista) {
+      const ruta = Sprites.lista[nombre];
+      // nos quedamos con la carpeta: todo lo que va antes de la ultima barra
+      const suCarpeta = ruta.slice(0, ruta.lastIndexOf("/") + 1);
+      if (suCarpeta !== carpeta) continue;
+
+      items.push([nombre, carpeta, DESCRIPCIONES[nombre] || ""]);
+    }
+
+    if (items.length) grupos.push([titulo, items]);
+  }
+
+  // los cuadros de animacion van justo despues de los personajes
+  grupos.splice(1, 0, CUADROS_DE_ANIMACION);
+
+  grupos.push(["Inventar algo nuevo", [
+    ["__nuevo__", "imagenes/objetos/", "ponerle el nombre que quieras"],
+  ]]);
+
+  return grupos;
+}
+
+const NOMBRES = armarNombres();
+
 
 const $ = (id) => document.getElementById(id);
 
