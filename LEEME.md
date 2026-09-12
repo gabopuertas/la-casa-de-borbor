@@ -22,6 +22,29 @@ El proyecto está en GitHub y jugable en la web. Cosas que conviene saber:
 - **La identidad de git está configurada solo en este repo**, no en tu config global.
 - **Para publicar cambios:** `git add -A && git commit -m "lo que hiciste" && git push`
   GitHub Pages se actualiza solo en un minuto o dos.
+
+### ⚠️ Tenés dos cuentas de GitHub y git elegía la equivocada
+
+Tu `git` usa el helper `osxkeychain`, que guarda **una sola** credencial para
+github.com — y esa era la de `SaltaTeramot`. El primer push funcionó porque lo
+hizo `gh` directamente, pero el `git push` común fallaba con:
+
+```
+remote: Permission to gabopuertas/la-casa-de-borbor.git denied to SaltaTeramot
+```
+
+Ya está arreglado **solo en este repo** (no toqué tu config global ni el llavero):
+
+```bash
+git config --local --replace-all "credential.https://github.com.helper" ""
+git config --local --add "credential.https://github.com.helper" "!gh auth git-credential"
+git config --local "credential.https://github.com.username" "gabopuertas"
+```
+
+Ahora git le pregunta a `gh` por la credencial, y `gh` usa la cuenta activa.
+**Si algún día armás otro repo personal y te da 403, este es el motivo** —
+copiá esas tres líneas. (Para arreglarlo de una vez para siempre en todas partes:
+`gh auth setup-git`, pero eso sí cambia tu config global.)
 - **`docs/captura.png`** es la imagen del README. Si el juego cambia mucho,
   conviene sacar una nueva.
 
