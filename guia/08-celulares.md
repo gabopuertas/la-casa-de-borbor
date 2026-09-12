@@ -125,6 +125,63 @@ usa `%` y `vw` en vez de números fijos de píxeles.
 
 ---
 
+## ⚠️ La lección más importante de este archivo
+
+Cuando hicimos los controles táctiles, el código quedó así:
+
+```js
+iniciar() {
+  this.activo = this.hayPantallaTactil();
+  if (!this.activo) return;        // ← si no es táctil, no hago NADA
+
+  this.conectarPalanca();
+  this.conectarBotones();
+  this.conectarPantalla();         // ← esto es tocar para empezar
+}
+```
+
+Parece razonable: *"si no es un celular, no necesito nada de esto"*.
+
+Pero mirá bien dónde quedó `conectarPantalla()`. Eso es **"tocar la pantalla
+para empezar"**. Y quedó adentro del `if`.
+
+O sea: si la detección se equivocaba — un celular raro, un navegador nuevo,
+cualquier cosa — el juego **pedía apretar una tecla que no existía**.
+Imposible de empezar. Pantalla muerta.
+
+Y encima, en una computadora con mouse, hacer clic en el juego no hacía nada.
+¿Por qué no? No hay ninguna buena razón. Simplemente nunca lo conectamos.
+
+### La regla
+
+> **Nunca dejes que la ÚNICA forma de hacer algo dependa de una adivinanza.**
+
+Detectar el aparato es una adivinanza. Las adivinanzas fallan.
+Siempre tiene que quedar un camino que funcione igual.
+
+Ahora `conectarPantalla()` va **siempre**, fuera del `if`. Tocar o hacer clic
+sirve en cualquier aparato, se haya detectado lo que se haya detectado.
+
+### Y una idea todavía mejor: mirá qué hace la gente
+
+Adivinar el aparato es difícil. Hay notebooks con pantalla táctil, tablets con
+teclado, celulares conectados a un monitor...
+
+Así que además de adivinar, el juego **mira qué estás haciendo**:
+
+```js
+window.addEventListener("touchstart", () => this.activar());   // tocaste  → palanca
+window.addEventListener("keydown",    () => this.desactivar()); // tecleaste → teclas
+```
+
+Eso **no puede fallar**, porque ya no es una suposición sobre qué aparato tenés:
+es lo que efectivamente está pasando. Si tocás la pantalla, aparecen los
+controles. Si usás una tecla, desaparecen. En el mismo momento.
+
+**Adiviná si querés, pero después mirá.**
+
+---
+
 ## Las mañas del navegador
 
 Un navegador en el celular quiere hacer cosas con tus dedos:

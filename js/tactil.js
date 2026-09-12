@@ -47,22 +47,102 @@ const Tactil = {
      Y aceptamos "?tactil=1" al final de la direccion para poder
      probar los controles desde la compu, sin celular a mano.
      --------------------------------------------------------- */
+  forzado: false,
+  yaConecte: false,
+  huboUnDedo: false,
+
   hayPantallaTactil() {
-    if (new URLSearchParams(location.search).has("tactil")) return true;
-    return navigator.maxTouchPoints > 0;
+    if (new URLSearchParams(location.search).has("tactil")) {
+      this.forzado = true;
+      return true;
+    }
+
+    /* Tres preguntas distintas, porque ninguna sola es confiable:
+         maxTouchPoints -> cuantos dedos detecta la pantalla
+         pointer: coarse -> "el que apunta es gordo" (un dedo, no un mouse)
+         ontouchstart -> el navegador sabe de toques
+       Si cualquiera dice que si, asumimos que es tactil. */
+    return navigator.maxTouchPoints > 0
+        || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+        || "ontouchstart" in window;
   },
 
   iniciar() {
-    this.activo = this.hayPantallaTactil();
-    if (!this.activo) return;
+    /* ---------------------------------------------------------
+       ESTO VA SIEMPRE, EN CUALQUIER APARATO
+       ---------------------------------------------------------
+       Tocar o hacer CLIC en la pantalla tiene que servir para
+       empezar, se haya detectado o no una pantalla tactil.
 
-    // Esta clase prende los controles en el CSS
-    document.body.classList.add("tactil");
+       Antes esto estaba adentro del "if (es tactil)". Y eso
+       significaba que si la deteccion fallaba, el juego se volvia
+       imposible de empezar: te pedia una tecla que no existia.
 
-    this.conectarPalanca();
-    this.conectarBotones();
+       >>> REGLA GENERAL <<<
+       Nunca dejes que la UNICA forma de hacer algo dependa de
+       una adivinanza. Las adivinanzas fallan. Siempre tiene que
+       haber un camino que funcione igual.
+       --------------------------------------------------------- */
     this.conectarPantalla();
     this.evitarGestosDelNavegador();
+    this.escucharPorSiAparecenDedos();
+
+    if (this.hayPantallaTactil()) this.activar();
+  },
+
+  /* ---------------------------------------------------------
+     DETECTAR POR COMO JUGAS, NO POR QUE APARATO TENES
+     ---------------------------------------------------------
+     Adivinar el aparato es dificil: hay notebooks con pantalla
+     tactil, tablets con teclado, celulares con mouse...
+
+     Asi que ademas de adivinar, MIRAMOS QUE HACES:
+
+       tocaste la pantalla -> prendemos los controles
+       usaste una tecla    -> los apagamos
+
+     Eso no puede fallar, porque no es una suposicion: es lo que
+     efectivamente esta pasando.
+     --------------------------------------------------------- */
+  escucharPorSiAparecenDedos() {
+    window.addEventListener("touchstart", () => {
+      this.huboUnDedo = true;
+      if (!this.activo) this.activar();
+    }, { passive: true });
+
+    window.addEventListener("keydown", (e) => {
+      // Si ya uso los dedos, o lo forzamos con ?tactil=1, no tocamos nada
+      if (this.huboUnDedo || this.forzado) return;
+
+      // Solo las teclas del juego cuentan como "esta usando teclado"
+      const teclasDelJuego = ["arrowup","arrowdown","arrowleft","arrowright",
+                              "w","a","s","d"," ","p","e","r"];
+      if (!teclasDelJuego.includes(e.key.toLowerCase())) return;
+
+      if (this.activo) this.desactivar();
+    });
+  },
+
+  activar() {
+    this.activo = true;
+    document.body.classList.add("tactil");   // esta clase prende los controles en el CSS
+
+    // Los escuchadores se conectan una sola vez, aunque prendas
+    // y apagues los controles varias veces.
+    if (!this.yaConecte) {
+      this.conectarPalanca();
+      this.conectarBotones();
+      this.yaConecte = true;
+    }
+
+    if (typeof Juego !== "undefined") Juego.acomodarPantalla();
+  },
+
+  desactivar() {
+    this.activo = false;
+    document.body.classList.remove("tactil");
+    this.soltarTodasLasFlechas();
+    if (typeof Juego !== "undefined") Juego.acomodarPantalla();
   },
 
   /* ---------------------------------------------------------
@@ -136,6 +216,7 @@ const Tactil = {
     base.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       this.dedoDeLaPalanca = e.pointerId;
+      if (e.pointerType === "touch") this.huboUnDedo = true;
 
       /* setPointerCapture = "este dedo es mio hasta que lo levante".
          Sin esto, si arrastras el dedo fuera del circulo, el
@@ -207,10 +288,14 @@ const Tactil = {
   },
 
   /* ---------------------------------------------------------
-     TOCAR LA PANTALLA = ESPACIO
+     TOCAR (O HACER CLIC) EN LA PANTALLA = ESPACIO
      ---------------------------------------------------------
-     En la portada, al perder y al ganar, tocar en cualquier
-     lado tiene que servir. Nadie busca un boton chiquito.
+     En la portada, al perder y al ganar, tocar en cualquier lado
+     tiene que servir. Nadie busca un boton chiquito.
+
+     Usamos "pointerdown" y no "touchstart" porque pointerdown
+     sirve para TODO: un dedo, un mouse, una lapicera digital.
+     Un solo escuchador para los tres.
      --------------------------------------------------------- */
   conectarPantalla() {
     const canvas = document.getElementById("pantalla");
@@ -218,6 +303,7 @@ const Tactil = {
     canvas.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       Sonidos.encender();
+      if (e.pointerType === "touch") this.huboUnDedo = true;
 
       if (["portada", "perdiste", "ganaste"].includes(Juego.estado)) {
         // Solo "recien apretada": el juego la lee en este cuadro

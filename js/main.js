@@ -349,7 +349,7 @@ const Juego = {
 
     // Parpadea para llamar la atencion (otra vez sin/coseno al rescate)
     if (Math.floor(Reservas.tiempo / 30) % 2 === 0) {
-      Dibujante.textoConSombra(this.segunControl("Apreta ESPACIO para empezar", "Toca la pantalla para empezar"),
+      Dibujante.textoConSombra(this.segunControl("Apreta ESPACIO o hace clic para empezar", "Toca la pantalla para empezar"),
                                cx, alto(0.82), 20, "#7bc74d");
     }
 
@@ -372,7 +372,7 @@ const Juego = {
     Dibujante.velo(0.72, "#3a0a14");
     Dibujante.textoConSombra("TE QUEDASTE SIN CORAZONES", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 - 20, 26, "#ff4d6d");
     Dibujante.texto("Monedas juntadas: " + Jugador.monedas, CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 14, 17, "#ffd166", "center");
-    Dibujante.texto(this.segunControl("Apreta ESPACIO para volver a intentar", "Toca la pantalla para intentar de nuevo"),
+    Dibujante.texto(this.segunControl("Apreta ESPACIO o hace clic para intentar de nuevo", "Toca la pantalla para intentar de nuevo"),
                     CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 48, 15, "#e8e8f0", "center", false);
   },
 
@@ -382,7 +382,7 @@ const Juego = {
     Dibujante.texto("Llegaste al final del castillo", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 6, 17, "#e8e8f0", "center", false);
     Dibujante.texto("Monedas: " + Jugador.monedas + "   Corazones: " + Jugador.vidas,
                     CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 36, 17, "#7bc74d", "center");
-    Dibujante.texto(this.segunControl("Apreta ESPACIO para jugar de nuevo", "Toca la pantalla para jugar de nuevo"),
+    Dibujante.texto(this.segunControl("Apreta ESPACIO o hace clic para jugar de nuevo", "Toca la pantalla para jugar de nuevo"),
                     CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 70, 15, "#9a9ab5", "center", false);
   },
 };
