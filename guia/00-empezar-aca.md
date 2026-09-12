@@ -112,5 +112,6 @@ Seguí en orden:
 | `04-hacer-mapas.md` | Inventar tus propios mapas con letras |
 | `06-animacion.md` | **Cómo hacer que el héroe camine de verdad** |
 | `07-el-amigo.md` | **Cómo funciona la IA de Chispa** |
+| `08-celulares.md` | Cómo se juega en un celular o tablet |
 | `05-misiones.md` | 12 desafíos, de fácil a difícil |
 | `glosario.md` | Las palabras raras, explicadas |

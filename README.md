@@ -7,6 +7,8 @@ con enemigos, mapas, colisiones, animación y una IA que te acompaña.
 
 ### ▶️ [Jugar ahora](https://gabopuertas.github.io/la-casa-de-borbor/)
 
+**Anda en la compu y también en celular y tablet**, con palanca y botones en pantalla.
+
 ![El juego](docs/captura.png)
 
 *Los carteles amarillos no son un error: son la lista de tareas. Marcan qué dibujo
@@ -65,6 +67,7 @@ Las guías están en español, escritas para leerlas a los 10 años, en `guia/`:
 | [05 — Misiones](guia/05-misiones.md) | 12 desafíos, de cambiar un número a programar un enemigo |
 | [06 — Animación](guia/06-animacion.md) | Por cuadros y procedural: seno, coseno y una sombra |
 | [07 — El amigo](guia/07-el-amigo.md) | **Cómo funciona una IA de videojuego, de verdad** |
+| [08 — Celulares](guia/08-celulares.md) | El patrón adaptador y el diseño adaptable |
 | [Glosario](guia/glosario.md) | Sprite, tile, AABB, hitbox, i-frames, culling, flood fill… |
 
 ---
@@ -113,6 +116,23 @@ Y `taller/prompts-ia.md` explica cómo pedirle sprites a una IA que sirvan de ve
 
 ---
 
+## 📱 En el celular
+
+El juego se hizo con teclado, pero funciona igual en pantallas táctiles:
+
+- **Palanca** a la izquierda y botones a la derecha, que aparecen solos cuando
+  detectan una pantalla táctil (o con `?tactil=1` para probarlos desde la compu)
+- En el celular **parado**, el juego **cambia de forma**: pasa de 640×480 a 480×640
+  para aprovechar la pantalla en vez de quedar en una franjita
+- **Acostado**, los controles se ponen encima del juego y se oculta todo lo demás
+- Sin zoom accidental, sin "tirar para refrescar" y sin quedarse caminando solo al girar
+
+Por dentro, los controles táctiles **fingen ser teclas**: escriben en la misma lista
+donde escribe el teclado. El jugador, los enemigos y Chispa no se enteran de que
+existe una pantalla táctil. Eso es el **patrón adaptador**.
+
+---
+
 ## Estructura
 
 ```
@@ -121,6 +141,7 @@ css/estilo.css        la ropa
 js/                   el cerebro, un archivo por responsabilidad
   config.js           ← todos los números que se pueden tocar
   amigo/              ← la IA de Chispa, en 5 pedazos
+  tactil.js           ← los dedos, fingiendo ser teclas
 imagenes/             los dibujos
 taller/               la herramienta de sprites
 guia/                 las 9 guías

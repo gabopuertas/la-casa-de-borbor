@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <title>La Casa de BorBor</title>
   <link rel="stylesheet" href="css/estilo.css">
 </head>
@@ -26,14 +26,45 @@
 
     <h1>La Casa de BorBor</h1>
 
-    <canvas id="pantalla" width="640" height="480"></canvas>
+    <div id="zona">
+      <canvas id="pantalla" width="640" height="480"></canvas>
 
-    <p id="ayuda">
+      <!-- ============================================================
+           LOS CONTROLES TACTILES
+           ============================================================
+           Estan siempre en el HTML, pero el CSS los esconde si no
+           haces falta. Se prenden solos en celulares y tablets.
+
+           Probalos desde la compu agregando ?tactil=1 al final
+           de la direccion.
+           ============================================================ -->
+      <div id="tactiles">
+
+        <div id="joystick" aria-label="Palanca para caminar">
+          <div id="palanca"></div>
+        </div>
+
+        <div id="acciones">
+          <button id="btnPantalla" type="button" title="Pantalla completa">⛶</button>
+          <button id="btnPausa"  type="button" title="Pausa">❙❙</button>
+          <button id="btnHablar" type="button" title="Preguntarle a Chispa">E</button>
+        </div>
+
+      </div>
+    </div>
+
+    <p id="ayuda" class="soloTeclado">
       <b>Flechas</b> o <b>WASD</b> para caminar &nbsp;·&nbsp;
       <b>Espacio</b> para empezar &nbsp;·&nbsp;
       <b>E</b> para preguntarle a Chispa &nbsp;·&nbsp;
       <b>P</b> para pausa &nbsp;·&nbsp;
       <b>R</b> para reiniciar
+    </p>
+
+    <p id="ayudaTactil" class="soloTactil">
+      <b>Palanca</b> para caminar &nbsp;·&nbsp;
+      <b>E</b> para hablar con Chispa &nbsp;·&nbsp;
+      Tocá la pantalla para empezar
     </p>
 
   </main>
@@ -72,6 +103,7 @@
   <script src="js/amigo/decision.js"></script>    <!-- como elige -->
   <script src="js/amigo/cerebro.js"></script>     <!-- el enchufe -->
   <script src="js/amigo/amigo.js"></script>       <!-- el cuerpo -->
+  <script src="js/tactil.js"></script>     <!-- los dedos, fingiendo ser teclas -->
   <script src="js/main.js"></script>       <!-- ARRANCA TODO -->
 
 </body>

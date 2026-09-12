@@ -46,10 +46,15 @@ const Juego = {
   /* ---------------------------------------------------------
      ARRANQUE
      --------------------------------------------------------- */
+  formaActual: null,
+
   iniciar() {
-    const canvas = document.getElementById("pantalla");
-    Dibujante.iniciar(canvas);
     Teclado.iniciar();
+    Tactil.iniciar();          // si hay pantalla tactil, prende la palanca
+    this.acomodarPantalla();   // y elige la forma del juego segun el telefono
+
+    // Si girás el teléfono, el juego se reacomoda
+    window.addEventListener("resize", () => this.acomodarPantalla());
 
     revisarMapas();   // control de calidad de los mapas
 
@@ -73,6 +78,57 @@ const Juego = {
       this.anterior = performance.now();
       requestAnimationFrame((t) => this.cuadro(t));
     });
+  },
+
+  /* ---------------------------------------------------------
+     LA FORMA DE LA PANTALLA
+     ---------------------------------------------------------
+     El juego se hizo de 640x480: apaisado, como una tele.
+
+     Pero un celular agarrado normal es al reves: alto y angosto.
+     Si metieramos una tele apaisada ahi, quedaria una franjita
+     chiquita arriba y media pantalla vacia. Injugable.
+
+     Entonces damos vuelta el juego: en un celular parado usamos
+     480x640. La camara muestra un pedazo mas angosto y mas alto
+     del mapa, y el juego ocupa MUCHO mas pantalla.
+
+     Ojo: esto NO cambia el mundo ni el mapa. Cambia el tamanio
+     de la ventanita por la que lo mirás. Es como acercar o alejar
+     una camara de cine: la escena es la misma.
+     --------------------------------------------------------- */
+  acomodarPantalla() {
+    const canvas = document.getElementById("pantalla");
+
+    // "parado" = bastante mas alto que ancho
+    const parado = window.innerHeight > window.innerWidth * 1.15;
+    const forma = (Tactil.activo && parado) ? "vertical" : "apaisada";
+
+    // Si no cambio nada, no hacemos nada. Cambiar el tamanio de un
+    // canvas lo BORRA entero, asi que no conviene hacerlo al pedo.
+    if (forma === this.formaActual) return;
+    this.formaActual = forma;
+
+    if (forma === "vertical") { CONFIG.ANCHO = 480; CONFIG.ALTO = 640; }
+    else                      { CONFIG.ANCHO = 640; CONFIG.ALTO = 480; }
+
+    canvas.width = CONFIG.ANCHO;
+    canvas.height = CONFIG.ALTO;
+    canvas.style.aspectRatio = CONFIG.ANCHO + " / " + CONFIG.ALTO;
+
+    // Cambiar el tamanio resetea el lapiz: hay que configurarlo de nuevo
+    Dibujante.iniciar(canvas);
+
+    // Y la camara tiene que recalcular que pedazo del mundo mostrar
+    if (Mundo.mapa) Camara.seguir(Jugador, Mundo.anchoPx, Mundo.altoPx);
+  },
+
+  /* Elige el texto segun como estes jugando.
+     El mismo juego tiene que explicarse distinto si tenes
+     teclado o si tenes los dedos. Decirle "apreta ESPACIO"
+     a alguien con un celular es no decirle nada. */
+  segunControl(conTeclado, conDedos) {
+    return (typeof Tactil !== "undefined" && Tactil.activo) ? conDedos : conTeclado;
   },
 
   /* ---------------------------------------------------------
@@ -252,6 +308,12 @@ const Juego = {
   dibujarPortada() {
     const cx = CONFIG.ANCHO / 2;
 
+    /* Las alturas van en FRACCIONES del alto, no en numeros fijos.
+       Si escribieramos "el titulo va en y=120", al cambiar la forma
+       de la pantalla quedaria todo amontonado arriba.
+       Con fracciones, el 25% sigue siendo el 25% mida lo que mida. */
+    const alto = (fraccion) => CONFIG.ALTO * fraccion;
+
     /* Partimos el titulo en dos: la ultima palabra grande y dorada,
        y el resto chiquito arriba. Asi "La Casa de BorBor" queda
 
@@ -268,24 +330,27 @@ const Juego = {
     const ultima = palabras.pop();
     const arriba = palabras.join(" ");
 
-    if (arriba) Dibujante.textoConSombra(arriba, cx, 120, 26, "#e8e8f0");
-    Dibujante.textoConSombra(ultima, cx, 168, 46, "#ffd166");
+    if (arriba) Dibujante.textoConSombra(arriba, cx, alto(0.25), 26, "#e8e8f0");
+    Dibujante.textoConSombra(ultima, cx, alto(0.35), 46, "#ffd166");
 
     // Un heroe de muestra saludando en la portada
     Dibujante.dibujar(
       ["heroe-abajo", "heroe"],
-      cx - 32, 200, 64, 64,
+      cx - 32, alto(0.42), 64, 64,
       (c, x, y, w, h) => Reservas.heroe(c, x, y, w, h, "abajo")
     );
 
-    Dibujante.texto("Flechas o WASD para caminar", cx, 300, 16, "#9a9ab5", "center", false);
-    Dibujante.texto("Junta monedas, abri puertas, llega al castillo", cx, 324, 16, "#9a9ab5", "center", false);
-    Dibujante.texto("Te acompaña " + CONFIG.NOMBRE_AMIGO + ". Apreta E para preguntarle",
-                    cx, 348, 15, "#4ecdc4", "center", false);
+    Dibujante.texto(this.segunControl("Flechas o WASD para caminar", "Usa la palanca para caminar"),
+                    cx, alto(0.625), 16, "#9a9ab5", "center", false);
+    Dibujante.texto("Junta monedas, abri puertas, llega al castillo", cx, alto(0.675), 16, "#9a9ab5", "center", false);
+    Dibujante.texto("Te acompaña " + CONFIG.NOMBRE_AMIGO + ". " +
+                    this.segunControl("Apreta E para preguntarle", "Toca el boton E para hablarle"),
+                    cx, alto(0.725), 15, "#4ecdc4", "center", false);
 
     // Parpadea para llamar la atencion (otra vez sin/coseno al rescate)
     if (Math.floor(Reservas.tiempo / 30) % 2 === 0) {
-      Dibujante.textoConSombra("Apreta ESPACIO para empezar", cx, 392, 20, "#7bc74d");
+      Dibujante.textoConSombra(this.segunControl("Apreta ESPACIO para empezar", "Toca la pantalla para empezar"),
+                               cx, alto(0.82), 20, "#7bc74d");
     }
 
     // El contador de dibujos: el objetivo de BorBor es llegar a 15/15
@@ -299,14 +364,16 @@ const Juego = {
   dibujarPausa() {
     Dibujante.velo(0.6);
     Dibujante.textoConSombra("PAUSA", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 - 6, 40, "#ffd166");
-    Dibujante.texto("P para seguir", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 28, 16, "#9a9ab5", "center", false);
+    Dibujante.texto(this.segunControl("P para seguir", "Toca el boton de pausa para seguir"),
+                    CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 28, 16, "#9a9ab5", "center", false);
   },
 
   dibujarPerdiste() {
     Dibujante.velo(0.72, "#3a0a14");
     Dibujante.textoConSombra("TE QUEDASTE SIN CORAZONES", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 - 20, 26, "#ff4d6d");
     Dibujante.texto("Monedas juntadas: " + Jugador.monedas, CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 14, 17, "#ffd166", "center");
-    Dibujante.texto("Apreta ESPACIO para volver a intentar", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 48, 15, "#e8e8f0", "center", false);
+    Dibujante.texto(this.segunControl("Apreta ESPACIO para volver a intentar", "Toca la pantalla para intentar de nuevo"),
+                    CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 48, 15, "#e8e8f0", "center", false);
   },
 
   dibujarGanaste() {
@@ -315,7 +382,8 @@ const Juego = {
     Dibujante.texto("Llegaste al final del castillo", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 6, 17, "#e8e8f0", "center", false);
     Dibujante.texto("Monedas: " + Jugador.monedas + "   Corazones: " + Jugador.vidas,
                     CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 36, 17, "#7bc74d", "center");
-    Dibujante.texto("Apreta ESPACIO para jugar de nuevo", CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 70, 15, "#9a9ab5", "center", false);
+    Dibujante.texto(this.segunControl("Apreta ESPACIO para jugar de nuevo", "Toca la pantalla para jugar de nuevo"),
+                    CONFIG.ANCHO / 2, CONFIG.ALTO / 2 + 70, 15, "#9a9ab5", "center", false);
   },
 };
 

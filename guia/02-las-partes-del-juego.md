@@ -42,6 +42,13 @@ video games BorBor/
 │   ├── enemigos.js     ← 👾 los malos
 │   ├── objetos.js      ← 💰 monedas, llaves, cofres
 │   ├── hud.js          ← ❤️  los corazones y números de arriba
+│   ├── tactil.js       ← 📱 los dedos, fingiendo ser teclas
+│   ├── amigo/          ← 🤖 el cerebro de Chispa
+│   │   ├── percepcion.js    qué ve
+│   │   ├── memoria.js       qué recuerda
+│   │   ├── decision.js      cómo elige
+│   │   ├── cerebro.js       el enchufe
+│   │   └── amigo.js         el cuerpo
 │   └── main.js         ← 🎬 el director: ordena a todos los demás
 │
 ├── imagenes/           ← 👉 ACÁ VAN TUS DIBUJOS
@@ -75,6 +82,8 @@ video games BorBor/
 | `enemigos.js` | Todo lo de los malos | Los villanos |
 | `objetos.js` | Todo lo que se junta | El tesorero |
 | `hud.js` | Los datos en pantalla | El tablero del auto |
+| `tactil.js` | Traducir dedos a teclas | Un traductor |
+| `amigo/` | Todo lo de Chispa | Un amigo |
 | `main.js` | Decirle a todos cuándo actuar | El director |
 
 ---

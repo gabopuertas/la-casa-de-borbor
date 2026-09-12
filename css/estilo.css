@@ -6,8 +6,15 @@
    Si cambias un color aca, el juego sigue funcionando igual.
    ============================================================ */
 
+html, body {
+  /* que no aparezca el "tirar para refrescar" ni el rebote al final */
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
+  touch-action: manipulation;      /* sin doble-toque para hacer zoom */
+  -webkit-text-size-adjust: 100%;  /* que el celular no agrande las letras solo */
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -23,6 +30,11 @@ body {
 #marco {
   text-align: center;
   padding: 16px;
+
+  /* Respetar el notch y la barrita de abajo del iPhone */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
 
 h1 {
@@ -45,10 +57,24 @@ h1 {
    image-rendering: pixelated  ->  al agrandar NO borronea los bordes.
    Asi los dibujos quedan con onda "pixel art" en vez de borrosos.
 ------------------------------------------------------------ */
-#pantalla {
+#zona {
+  position: relative;          /* los controles tactiles se cuelgan de aca */
   width: min(92vw, 960px);
+  margin: 0 auto;
+}
+
+/* En un celular parado el juego se da vuelta (queda alto y angosto),
+   asi que hay que cuidar que entre a lo alto y quede lugar
+   para la palanca y los botones. */
+@media (orientation: portrait) {
+  body.tactil #zona { width: min(92vw, 960px, 52vh); }
+}
+
+#pantalla {
+  display: block;
+  width: 100%;
   height: auto;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 4 / 3;   /* js/main.js la cambia si el telefono esta parado */
 
   background: #000;
   border: 4px solid #3a3a55;
@@ -57,6 +83,150 @@ h1 {
 
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+
+  /* En el celular, tocar el canvas no tiene que scrollear ni hacer zoom */
+  touch-action: none;
+}
+
+
+/* ============================================================
+   CONTROLES TACTILES
+   ============================================================
+   Estan siempre en el HTML pero escondidos. js/tactil.js le
+   pone la clase "tactil" al body cuando detecta una pantalla
+   tactil, y ahi aparecen.
+
+   Asi la misma pagina sirve para la compu y para el celular,
+   sin hacer dos versiones distintas. Eso se llama DISEÑO
+   ADAPTABLE (responsive): una sola pagina que se acomoda.
+   ============================================================ */
+
+.soloTactil  { display: none; }
+body.tactil .soloTeclado { display: none; }
+body.tactil .soloTactil  { display: block; }
+
+#tactiles { display: none; }
+
+body.tactil #tactiles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+
+  /* Que el navegador no intente scrollear ni seleccionar con el dedo */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ---------- LA PALANCA ---------- */
+#joystick {
+  position: relative;
+  flex: none;
+  width: clamp(112px, 30vw, 168px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2a2a40 0%, #1a1a28 72%);
+  border: 3px solid #3a3a55;
+  touch-action: none;
+}
+
+#palanca {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  aspect-ratio: 1;
+  margin: -21% 0 0 -21%;       /* asi queda centrada exacta */
+  border-radius: 50%;
+  background: #4ea8de;
+  border: 3px solid #7fc7f0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55);
+
+  /* El que escucha los dedos es el circulo grande, no la bolita.
+     Si la bolita escuchara, al moverse se te escaparia el dedo. */
+  pointer-events: none;
+}
+
+/* ---------- LOS BOTONES ---------- */
+#acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+#acciones button {
+  width: clamp(58px, 16vw, 80px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid #3a3a55;
+  background: #2a2a40;
+  color: #e8e8f0;
+  font: bold 20px/1 "Trebuchet MS", sans-serif;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#acciones button:active {
+  background: #4ea8de;
+  color: #10101a;
+  transform: scale(0.94);
+}
+
+#btnHablar {
+  background: #2a6a66;
+  border-color: #4ecdc4;
+  color: #bff6ff;
+  font-size: 26px;
+}
+
+#btnPausa,
+#btnPantalla {
+  width: clamp(46px, 12vw, 60px);
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+/* ============================================================
+   CELULAR ACOSTADO
+   ============================================================
+   Cuando el telefono esta de costado casi no hay altura.
+   Entonces escondemos el titulo y la ayuda, y ponemos los
+   controles ENCIMA del juego, medio transparentes.
+
+   126vh para el ancho sale de la cuenta del 4:3:
+   si el alto disponible es 94vh, el ancho es 94 x 4/3 = 125.
+   ============================================================ */
+@media (orientation: landscape) and (max-height: 560px) {
+
+  body.tactil h1,
+  body.tactil #ayudaTactil { display: none; }
+
+  body.tactil #marco { padding: 4px; }
+
+  #zona { width: min(96vw, 960px, 126vh); }
+
+  body.tactil #tactiles {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 3%;
+    margin: 0;
+    padding: 0 3%;
+    opacity: 0.8;
+
+    /* El contenedor no tapa el juego; solo los controles reciben dedos */
+    pointer-events: none;
+  }
+  body.tactil #tactiles > * { pointer-events: auto; }
+
+  #joystick { width: clamp(88px, 22vh, 130px); }
+  #acciones button { width: clamp(46px, 13vh, 66px); }
+  #btnPausa, #btnPantalla { width: clamp(38px, 10vh, 52px); }
 }
 
 #ayuda {

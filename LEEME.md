@@ -130,6 +130,7 @@ infinitamente más fácil para un chico de 10.
 | `guia/04-hacer-mapas.md` | Editar mapas ASCII + **diseño de niveles** |
 | `guia/06-animacion.md` | Animación por cuadros y animación procedural |
 | `guia/07-el-amigo.md` | IA por utilidad: percibir → recordar → decidir → actuar |
+| `guia/08-celulares.md` | El patrón adaptador y el diseño adaptable |
 | `guia/05-misiones.md` | 12 desafíos progresivos |
 | `guia/glosario.md` | Las palabras raras |
 | `taller/prompts-ia.md` | Cómo pedirle sprites a una IA que sirvan de verdad |
