@@ -156,7 +156,7 @@ heroe-der-1.png      heroe-der-2.png
 
 El juego busca primero los de la dirección, y si no están, usa los generales.
 
-> Estos cuadros **no cuentan** en el marcador de la portada (`2 de 22`).
+> Estos cuadros **no cuentan** en el marcador de la portada (`3 de 22`).
 > Son un extra: el juego anda perfecto sin ellos.
 
 ---

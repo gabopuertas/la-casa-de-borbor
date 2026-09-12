@@ -101,7 +101,7 @@ Eso es porque `js/sprites.js` ya estaba preparado para buscarlos.
 Dejar el código listo para cosas que todavía no existen es una habilidad enorme.
 
 ### Misión 9: completá los 21
-Hasta que la portada diga `22 de 22`. Ya tenés 2: el héroe y el garrote. La IA te puede ayudar con los pisos
+Hasta que la portada diga `22 de 22`. Ya tenés 3: el héroe, el garrote y Chispa. La IA te puede ayudar con los pisos
 (mirá `taller/prompts-ia.md`), pero **los personajes hacelos vos**.
 
 ---

@@ -5,6 +5,13 @@ enemigos y te felicita cuando juntás una llave.
 
 Apretá **E** para preguntarle algo.
 
+Chispa **vuela**: tiene un propulsor en vez de patas. Por eso flota siempre,
+aunque esté quieta. Fijate que es **al revés que BorBor**: él rebota porque
+*da pasos*, así que quieto no rebota nada. Ella no da pasos, así que nunca para.
+
+Un detalle así de chiquito es lo que hace que un personaje se sienta vivo
+y otro parezca una calcomanía. Está en `js/amigo/amigo.js`, función `dibujar()`.
+
 Y ahora lo importante: **Chispa no es magia, y vas a entender exactamente
 cómo piensa.** Su cerebro son unas 200 líneas que podés leer.
 

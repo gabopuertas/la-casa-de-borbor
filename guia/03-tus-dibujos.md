@@ -44,7 +44,7 @@ Los nombres tienen que ser **exactos**. Para la computadora, `heroe.png`,
 
 `moneda.png` · `llave.png` · `cofre.png` · `corazon.png` · `garrote.png` ✅
 
-Y en `imagenes/personajes/`: `amigo.png` — Chispa, el robot que te acompaña.
+Y en `imagenes/personajes/`: `amigo.png` ✅ — Chispa, el robot volador.
 
 ### 🧱 Piso y paredes → `imagenes/suelo/`
 
@@ -155,5 +155,5 @@ Hacé **solo `heroe.png`**. Es el que más se ve y el que más cambia el juego.
 Después, cuando quieras seguir, la pantalla de inicio te va llevando el marcador:
 
 ```
-Tus dibujos en el juego: 2 de 22
+Tus dibujos en el juego: 3 de 22
 ```

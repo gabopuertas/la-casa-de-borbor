@@ -50,6 +50,8 @@ const CONFIG = {
   AMIGO_ACTIVADO: true,
   NOMBRE_AMIGO: "Chispa",
   AMIGO_VELOCIDAD: 2.6,              // un toque mas rapido que vos, para alcanzarte
+  TAMANIO_AMIGO: 28,                 // que tan grande se dibuja
+  AMIGO_FLOTA: 2.5,                  // cuanto sube y baja en el aire (0 = se posa)
   AMIGO_DISTANCIA: 42,               // a que distancia te sigue, en pixeles
   AMIGO_PENSAMIENTOS_POR_SEGUNDO: 6, // NO piensa 60 veces por segundo: no hace falta
   AMIGO_PAUSA_ENTRE_FRASES: 2800,    // milisegundos callado entre frase y frase

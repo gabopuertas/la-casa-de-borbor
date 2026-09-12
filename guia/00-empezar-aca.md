@@ -25,7 +25,7 @@ Jugalo hasta ganar. Fijate cuántas monedas podés juntar.
 Abajo dice algo así:
 
 ```
-Tus dibujos en el juego: 2 de 22
+Tus dibujos en el juego: 3 de 22
 ```
 
 **Ese es el marcador de verdad.**
@@ -34,8 +34,8 @@ Todo lo que ves ahora mismo — el héroe, las monedas, los árboles — no son 
 Son formas que la computadora arma con código: "hacé un círculo acá, pintalo de verde".
 Son de relleno, hasta que lleguen los tuyos.
 
-Ya hay **2**: el **robot amarillo** (que sos vos) y el **garrote**, los dos hechos por vos.
-Y falta uno nuevo: **Chispa**, tu amigo robot. Andá a buscarlo en el mapa —
+Ya hay **3**, los tres hechos por vos: el **robot amarillo** (que sos vos),
+el **garrote** y **Chispa**, tu amigo volador. Andá a buscarlo en el mapa —
 está a la izquierda, un poco más abajo de donde empezás. Agarralo y tocá a un baboso.
 
 Tu misión es llegar a **22 de 22**. Cuando llegues, el juego va a ser tuyo entero.

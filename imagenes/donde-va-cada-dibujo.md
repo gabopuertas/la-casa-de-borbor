@@ -10,7 +10,7 @@ imagenes/
 │     heroe.png          ✅ ¡YA ESTÁ! el robot amarillo
 │     heroe-1.png        ← opcional: paso 1 de la caminata
 │     heroe-2.png        ← opcional: paso 2 de la caminata
-│     amigo.png          Chispa, el robot que te acompaña
+│     amigo.png          ✅ ¡YA ESTÁ! Chispa, el robot volador
 │     heroe-abajo.png    ← opcional: de frente
 │     heroe-arriba.png   ← opcional: de espaldas
 │     heroe-izq.png      ← opcional: mirando a la izquierda

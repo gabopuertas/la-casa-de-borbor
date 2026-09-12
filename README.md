@@ -28,7 +28,7 @@ Eso no es una limitación — es el diseño:
 
 - El juego **nunca se rompe** por un archivo que falta. Un chico no puede quedar trabado.
 - Cada PNG que agrega **reemplaza** una figura de relleno, y se ve al instante.
-- La portada lleva el marcador: `Tus dibujos en el juego: 2 de 22`.
+- La portada lleva el marcador: `Tus dibujos en el juego: 3 de 22`.
 - Y deja clarísima la lección más importante: **el dibujo y la lógica son
   cosas separadas**. El juego no ve dibujos: ve rectángulos con números.
 

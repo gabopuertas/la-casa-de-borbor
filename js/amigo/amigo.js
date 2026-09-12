@@ -165,13 +165,36 @@ const Amigo = {
   dibujar() {
     if (!CONFIG.AMIGO_ACTIVADO) return;
 
-    const flote = Math.sin(this.paso) * 2;
-    const tam = 26;
+    /* ---------------------------------------------------------
+       CHISPA VUELA
+       ---------------------------------------------------------
+       Tiene un propulsor en vez de patas, asi que flota SIEMPRE,
+       aunque este quieta. Por eso el flote usa Reservas.tiempo,
+       que es un reloj que nunca para, y no "paso", que solo
+       avanza mientras camina.
+
+       Es al reves que BorBor: el rebota porque DA PASOS, asi que
+       si esta quieto no rebota nada. Chispa no da pasos: flota.
+
+       Un detalle asi de chiquito es lo que hace que un personaje
+       se sienta vivo y otro parezca una calcomania.
+       --------------------------------------------------------- */
+    const flote = Math.sin(Reservas.tiempo / 16) * CONFIG.AMIGO_FLOTA
+                + Math.sin(this.paso) * 1.2;        // y se sacude un poco mas al moverse
+
+    const tam = CONFIG.TAMANIO_AMIGO;
     const dibX = this.x + this.w / 2 - tam / 2;
     const dibY = this.y + this.h - tam;
 
+    /* La sombra se achica cuando Chispa sube y se agranda cuando baja,
+       como pasa de verdad con una luz de arriba. Es el mismo truco que
+       con BorBor, pero al reves: la de el se queda quieta porque pisa,
+       la de Chispa cambia de tamanio porque vuela. */
     if (CONFIG.SOMBRA) {
-      Dibujante.sombra(this.x + this.w / 2, this.y + this.h - 1, this.w * 0.85, 6, 0.18);
+      const altura = (flote + CONFIG.AMIGO_FLOTA) / (CONFIG.AMIGO_FLOTA * 2); // 0 a 1
+      const encogida = 1 - altura * 0.25;
+      Dibujante.sombra(this.x + this.w / 2, this.y + this.h - 1,
+                       this.w * 0.8 * encogida, 5.5 * encogida, 0.2);
     }
 
     Dibujante.dibujar(
