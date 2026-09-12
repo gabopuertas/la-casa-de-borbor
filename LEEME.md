@@ -5,6 +5,29 @@ BorBor **lo termine él** — y que en el camino entienda cómo está hecho.
 
 > **Para jugar ahora mismo:** doble clic en `index.html`.
 > **Para empezar a aprender:** abrí `guia/00-empezar-aca.md`.
+> **En internet:** https://gabopuertas.github.io/la-casa-de-borbor/
+> **Repo:** https://github.com/gabopuertas/la-casa-de-borbor
+
+---
+
+## Publicado
+
+El proyecto está en GitHub y jugable en la web. Cosas que conviene saber:
+
+- **Es público y con licencia MIT.** Cualquiera puede jugarlo, copiarlo y usarlo
+  con sus hijos o alumnos.
+- **El nombre de pila de tu hijo no aparece en ningún lado.** Todas las menciones
+  se cambiaron por "BorBor". Tampoco aparece tu email: los commits usan
+  `gabopuertas@users.noreply.github.com` en vez de tu correo real.
+- **La identidad de git está configurada solo en este repo**, no en tu config global.
+- **Para publicar cambios:** `git add -A && git commit -m "lo que hiciste" && git push`
+  GitHub Pages se actualiza solo en un minuto o dos.
+- **`docs/captura.png`** es la imagen del README. Si el juego cambia mucho,
+  conviene sacar una nueva.
+
+> Un detalle: tu token de `gh` no tiene permiso `workflow`, así que no se pueden
+> subir archivos en `.github/workflows/`. No hace falta: Pages publica directo
+> desde la rama `main`.
 
 ---
 
