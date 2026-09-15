@@ -133,6 +133,18 @@ existe una pantalla táctil. Eso es el **patrón adaptador**.
 
 ---
 
+## 🧪 Pruebas
+
+```bash
+node pruebas/correr-todo.js
+```
+
+126 chequeos automáticos en 5 suites. Las cuatro primeras corren el juego dentro
+de un **navegador de mentira** en Node (2000 cuadros de juego en medio segundo);
+la quinta abre Chrome de verdad y lo prueba como computadora y como iPhone.
+
+---
+
 ## Estructura
 
 ```
@@ -145,6 +157,9 @@ js/                   el cerebro, un archivo por responsabilidad
 imagenes/             los dibujos
 taller/               la herramienta de sprites
 guia/                 las 9 guías
+pruebas/              126 chequeos automáticos
+CLAUDE.md             reglas del proyecto y trampas conocidas
+ESTADO.md             dónde quedamos y por dónde seguir
 ```
 
 Todo el código está comentado **en español y para que lo lea un chico**.

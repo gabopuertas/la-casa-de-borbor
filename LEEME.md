@@ -5,6 +5,10 @@ BorBor **lo termine él** — y que en el camino entienda cómo está hecho.
 
 > **Para jugar ahora mismo:** doble clic en `index.html`.
 > **Para empezar a aprender:** abrí `guia/00-empezar-aca.md`.
+> **Para retomar después de un tiempo:** abrí **`ESTADO.md`** — dice dónde
+> quedamos y por dónde seguir.
+> **Para trabajar en el código (vos o una IA):** **`CLAUDE.md`** tiene las reglas
+> del proyecto y las trampas que ya nos costaron tiempo.
 > **En internet:** https://gabopuertas.github.io/la-casa-de-borbor/
 > **Repo:** https://github.com/gabopuertas/la-casa-de-borbor
 
@@ -200,19 +204,26 @@ La 12 (enemigo que dispara) es a propósito difícil y sin pasos.
 
 ---
 
-## Verificación
+## Pruebas automáticas
 
-Antes de entregarlo corrí dos chequeos automáticos:
+```bash
+node pruebas/correr-todo.js      # o doble clic en probar.command
+```
 
-- **Mapas**: las 60 filas miden lo mismo, no hay letras inventadas, y un BFS
-  confirma que en los 3 mapas se puede llegar a las llaves, los cofres, las
-  monedas, los portales y la meta.
-- **Juego**: un navegador simulado en Node ejecuta el bucle real —
-  29 chequeos en verde (caminar, chocar, 2000 cuadros sin meterse en una pared,
-  juntar monedas, llave abre puerta, viajar entre mapas, ganar, perder, pausa).
+**126 chequeos en 5 suites, unos 10 segundos.** Corrélas antes de dar un cambio
+por terminado: ya atraparon varios errores reales (un `addEventListener` que
+quedó faltando al mover código, la IA de persecución probando el eje equivocado,
+y un contador desactualizado).
 
-Los scripts quedaron en el scratchpad de la sesión, no en el proyecto,
-para no ensuciarle la carpeta a BorBor.
+| Suite | Qué revisa |
+|---|---|
+| `validar-mapas.js` | Filas parejas, letras válidas y —con un BFS— que se pueda **llegar** a llaves, cofres, portales y meta |
+| `probar-juego.js` | El juego entero, incluida la IA de Chispa |
+| `probar-dibujos.js` | Que ande sin imágenes, la cadena de reserva y la animación |
+| `probar-tactil.js` | Palanca, botones, giro del teléfono, cambio de forma |
+| `probar-en-navegador-real.js` | Chrome de verdad, como compu y como iPhone (lo único que prueba el CSS) |
+
+Detalle en `pruebas/LEEME.md`.
 
 ---
 
