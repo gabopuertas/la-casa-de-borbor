@@ -157,6 +157,14 @@ siempre para el mismo lado, y el layout del celular.
 | **Buscar y reemplazar contadores** | Cambiar `"2 de 22"` por `"3 de 22"` también pisa `"22 de 22"` y lo deja en `"23 de 22"`. Revisá el resultado. |
 | **`const` en scripts `vm`** | No quedan como propiedades del contexto. Usá `n.tomar("Juego", ...)`. |
 | **Caracteres invisibles** | Una vez se coló un zero-width space en un nombre de función. Si un `node --check` falla sin motivo aparente, mirá eso. |
+| **Git no guarda carpetas vacías** | `imagenes/enemigos/` y `imagenes/suelo/` desaparecían al clonar y no había dónde poner los dibujos. Cada carpeta de imágenes tiene un `LEEME.md` que la mantiene viva. **No los borres.** |
+
+> **Probá siempre desde un clon limpio** antes de dar el repo por listo:
+> ```bash
+> git clone https://github.com/gabopuertas/la-casa-de-borbor.git /tmp/clon
+> cd /tmp/clon && node pruebas/correr-todo.js
+> ```
+> Así se encontró lo de las carpetas vacías: en local pasaba todo, en el clon no.
 
 ---
 
